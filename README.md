@@ -1365,7 +1365,7 @@ Unfortunately, for us as developers, there is no “one-way” of handling this 
     **[latitude, longitude]**
 -   In many backend libraries/technologies, like for example GeoJSON, the order is the reverse: **[longitude, latitude, elevation]**
 
-![Latitude and Longtitude showcase](./img/longlatiglobe.PNG)
+![Latitude and Longtitude showcase](./img/longlatiglobe.png)
 
 ### Decimal Degrees vs DMS
 
@@ -1420,29 +1420,207 @@ Sadly i can't demonstrate the client-side of the project.
 ## GraphQL
 ### Explain shortly about GraphQL, its purpose and some of its use cases
 
+**GraphQL** is a new API standard that provides a more efficient, powerful and flexible alternative to REST. It was developed and open-sourced by Facebook and is now maintained by a large community of companies and individuals from all over the world.
+
+One of the many problems with REST is that you often overfetch or underfetch - However this problem is solved with GraphQL.
+
+With GraphQL you'll only with one super-charge endpoint, unlike REST were there'll be multiple endpoints
+
+![REST](./img/RESTful.png)
+
+![graphql](./img/graphql.png)
+
+In graphql you're fetching data with queries, writing data with mutations and getting real time updates with subscriptions
+
+Check this [reference](https://www.howtographql.com/basics/2-core-concepts/) for these topics
+
 ### Explain some of the Server Architectures that can be implemented with a GraphQL backend
+
+A GraphQL server can be deployed by using any of the three methods listed below:
+
+- GraphQL server with connected database
+- GraphQL server that integrates existing systems
+- Hybrid approach
+
+**GraphQL Server with Connected Database**
+
+The most common setup for greenfield projects. 
+
+In this setup, you have a single (web) server that implements the GraphQL specification. 
+
+When a query arrives at the GraphQL server, the server reads the query’s payload and fetches the required information from the database. This is called resolving the query. It then constructs the response object  and returns it to the client.
+
+GraphQL doesn’t care about the database or the format that is used to store the data. You can use a SQL database like MySQL or a NoSQL database like MongoDB.
+
+![connectedDB](./img/connectedDB.png)
+
+**GraphQL Server Integrating Existing Systems**
+
+Another major use case for GraphQL is the integration of multiple existing systems behind a single, coherent GraphQL API. 
+
+In that context, GraphQL can be used to unify these existing systems and hide their complexity behind a nice GraphQL API. 
+
+This way, new client applications can be developed that simply talk to the GraphQL server to fetch the data they need. 
+
+![intexisys](./img/intexisys.png)
+
+**Hybrid Approach**
+
+It’s obviously also possible to combine the two approaches and build a GraphQL server that has a connected database but still talks to legacy or third—party systems.
+
+![hybrid](./img/hybrid.png)
 
 ### What is meant by the terms over- and under-fetching in relation to REST
 
+Over-fetching happends when you fetch to much data - There's data in the response you don't intent to use
+
+Under-fetching happends when you don't fetch enough data - This will lead you to call a second endpoint.
+
+In both cases, they are performances issues -  you either use more bandwidth than you should, or you are making more HTTP requests that you should.
+
 ### Explain shortly about GraphQL’s type system and some of the benefits we get from this
+
+GraphQL is a strongly typed language. Type System defines various data types that can be used in a GraphQL application. The type system helps to define the schema, which is a contract between client and server. The commonly used GraphQL data types are as follows 
+
+- Scalar, Stores a single value
+- Object, Shows what kind of object can be fetched
+- Query, Entry point type to other specific types
+- Mutation, Entry point for data manipulation
+- Enum, Useful in a situation where you need the user to pick from a prescribed list of options
+- List, Lists can be used to represent an array of values of specific type. 
+- Non-Nullable, an exclamation mark (!) can be appended to a type. This ensures the presence of value in results returned by the query.
+
+For more information about types, check this [link](https://www.tutorialspoint.com/graphql/graphql_type_system.htm)
 
 ### Explain shortly about GraphQL Schema Definition Language, and provide a number of examples of schemas you have defined.
 
+Object types are specific to a GraphQL service, are defined with the `type` keyword and start with a capital letter by convention. They define the type name and the fields present under that type. Each field in an object type can be resolve to either other object types or scalar types. Scalar types point to actual data and represent the leaves of the graph.
+
+In the below schema deffinition we have the `Todo` object type as well as the `Query` and `Mutation` root object types. Only the `Query` root type is required in all GraphQL schemas, but the mutation root type will most often also be present when the service allows for updating, adding or deleting data. Additionally, a `Subscription` root type is also available, to define operations that a client can subscribe to.
+
+```js
+# Enumeration type for a level of priority
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+# Our main todo type
+type Todo {
+  id: ID!
+  name: String!
+  description: String
+  priority: Priority!
+}
+
+type Query {
+  # Get one todo item
+  todo(id: ID!): Todo
+  # Get all todo items
+  allTodos: [Todo!]!
+}
+
+type Mutation {
+  addTodo(name: String!, priority: Priority = LOW): Todo!
+  removeTodo(id: ID!): Todo!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+```
+
+for more types check this [LyndaTutorial](https://github.com/sem4-fullstackjs/Period-4/blob/master/LyndaTutorial/server/data/schema.js)
+
 ### Provide a number of examples demonstrating data fetching with GraphQL. You should provide examples both running in a Sandbox/playground and examples executed in an Apollo Client
+
+Check out my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) - Here i've made an application using Apollo and GraphQL to make myself a reading-list, where i can display all the books, get information about that book, and add more books. 
+
+In.order to run, open up two terminals and `npm start` both the client and the server.
 
 ### Provide a number of examples demonstrating creating, updating and deleting with Mutations. You should provide examples both running in a Sandbox/playground and examples executed in an Apollo Client.
 
+My [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) only have a mutation that adds a new book or author - However, this example made from a [LyndaTutorial](https://github.com/sem4-fullstackjs/Period-4/tree/master/LyndaTutorial/server) hsa both create, update and delete, you can find this under ./data
+
 ### Explain the Concept of a Resolver function, and provide a number of simple examples of resolvers you have implemented in a GraphQL Server.
+
+How do we gain all this flexibility with GraphQL? 
+
+As we have seen, the payload of a GraphQL query (or mutation) consists of a set of fields. In the GraphQL server implementation, each of these fields actually corresponds to exactly one function that’s called a resolver. The sole purpose of a resolver function is to fetch the data for its field.
+
+![resolver](resolver.png)
+
+For exampels i would check out both my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) and the [LyndaTutorial](https://github.com/sem4-fullstackjs/Period-4/tree/master/LyndaTutorial/server) - The resolvers are done with different approaches. 
 
 ### Explain the benefits we get from using a library like Apollo-client, compared to using the plain fetch-API
 
+Apollo Client takes care of the request cycle from start to finish, including tracking loading and error states for you. There's no middleware to set up or boilerplate to write before making your first request, nor do you need to worry about transforming and caching the response. All you have to do is describe the data your component needs and let Apollo Client do the heavy lifting.
+
+ref: https://www.apollographql.com/docs/react/why-apollo/
+
 ### In an Apollo-based React Component, demonstrate how to perform GraphQL Queries, including:
+
+All of these snippets are taken from my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist)
+
 #### Explain the structure of the Query Component
+
+```js
+const getBookQuery = gql`
+	query($id: ID) {
+		book(id: $id) {
+			id
+			name
+			genre
+			author {
+				id
+				name
+				age
+				books {
+					name
+					id
+				}
+			}
+		}
+	}
+`
+```
+
+The above `getBookQuery` fetches information about a spefic book from an ID, which then returns the id, name, genre and author from that book... However we also get information about the author, and other books that author has written.
 
 #### Explain the purpose of ApolloClient and the ApolloProvider component
 
+ApolloProvider provides an ApolloClient instance to all of your GraphQL components that either use the graphql() function, or the withApollo() function.
+
+If you do not add this component to the root of your React tree then your components enhanced with Apollo capabilities will not be able to function.
+
+In other words - React can't work with graphql without these components. 
+
 #### Explain the purpose of the gql-function (imported from graphql-tag)
+
+The Query component is one of the most important building blocks of your Apollo application. To create a Query component, just pass a GraphQL query string wrapped with the gql.
 
 ### In an Apollo-based React Component, demonstrate how to perform GraphQL Mutations?
 
+```js
+const addBookMutation = gql`
+	mutation($name: String!, $genre: String!, $authorId: ID!) {
+		addBook(name: $name, genre: $genre, authorId: $authorId) {
+			name
+			id
+		}
+	}
+`
+```
+
+Which we then use [here](https://github.com/sem4-fullstackjs/Period-4/blob/master/graphql-playlist/client/src/components/AddBook.js)
+
 ### Demonstrate and highlight important parts of a “complete” GraphQL-app using Express and MongoDB on the server side, and Apollo-Client on the client.
+
+Again i'll refere to my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) - The most important parts of this project is most likely the: 
+
+- schema deffiniton
+- setup of the endpoint.
+- quereis
+- components that uses the queries
