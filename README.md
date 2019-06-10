@@ -128,27 +128,41 @@ output
 
 #### JavaScripts Prototype
 ```js
-const names = ['Lars', 'Jan', 'Peter', 'Bo', 'Frederik']
-names.prototype.myMap = function(callback){
-    let arr = []
-    for(let i = 0; i < this.length; i++){
-        arr.push(callback(this[i]))
-    }
-    return arr
+function Person(first, last, age, eye) {
+	this.firstName = first
+	this.lastName = last
+	this.age = age
+	this.eyeColor = eye
 }
+
+Person.prototype.name = function() {
+	return this.firstName + ' ' + this.lastName
+}
+
+var newPerson = new Person('John', 'Doe', 50, 'blue')
+
+console.log(newPerson.name())
+```
+output
+```
+John Doe
 ```
 
 #### User-defined Callback Functions (writing your own functions that take a callback)
 ```js
-function myFilter(callback){
-    let arr = []
-    for(let i = 0; i < this.length; i++){
-        if(callback(this[i])){
-            arr.push(this[i])
-        }
-    }
-    return arr
+function doHomework(subject, callback) {
+	console.log(`Starting my ${subject} homework.`)
+	callback()
 }
+
+doHomework('math', function() {
+	console.log('Finished my homework.')
+})
+```
+output
+```
+Starting my math homework.
+Finished my homework.
 ```
 
 #### Explain the methods map, filter and reduce
@@ -420,13 +434,48 @@ The main heart of Node JS Processing model is “Event Loop”. If we understand
 ![Node JS Architecture – Single Threaded Event Loop](https://cdn.journaldev.com/wp-content/uploads/2015/04/NodeJS-Single-Thread-Event-Model-768x576.png)
 
 ### Explain briefly how to deploy a Node/Express application including how to solve the following deployment problems:
-[Deploying Node.js app on digital ocean](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04)
+
+DigitalOcean has a very good [tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04) on how to deploy your Node.js application
 
 #### Ensure that you Node-process restarts after a (potential) exception that closed the application
-Use PM2
+
+In production, you don’t want your application to be offline, ever. This means you need to make sure it restarts both if the app crashes and if the server itself crashes. Although you hope that neither of those events occurs, realistically you must account for both eventualities by:
+
+Using a process manager to restart the app (and Node) when it crashes.
+Using the init system provided by your OS to restart the process manager when the OS crashes. It’s also possible to use the init system without a process manager.
+
+Node applications crash if they encounter an uncaught exception. The foremost thing you need to do is to ensure your app is well-tested and handles all exceptions (see [handle exceptions properly](https://expressjs.com/en/advanced/best-practice-performance.html#handle-exceptions-properly) for details). But as a fail-safe, put a mechanism in place to ensure that if and when your app crashes, it will automatically restart.
+
+**Use a Process Manager**
+
+In development, you started your app simply from the command line with node server.js or something similar. But doing this in production is a recipe for disaster. If the app crashes, it will be offline until you restart it. To ensure your app restarts if it crashes, use a process manager. A process manager is a “container” for applications that facilitates deployment, provides high availability, and enables you to manage the application at runtime.
+
+In addition to restarting your app when it crashes, a process manager can enable you to:
+- Gain insights into runtime performance and resource consumption.
+- Modify settings dynamically to improve performance.
+- Control clustering (StrongLoop PM and pm2).
+
+The most popular process managers for Node are as follows:
+- [StrongLoop Process Manager](http://strong-pm.io/)
+- [PM2](https://github.com/Unitech/pm2)
+- [Forever](https://www.npmjs.com/package/forever) or their [GitHub](https://github.com/nodejitsu/forever)
+
+For a feature-by-feature comparison of the three process managers, see [Strong PM Compare](http://strong-pm.io/compare/). For a more detailed introduction to all three, see [Process managers for Express apps](https://expressjs.com/en/advanced/pm.html).
+
+Using any of these process managers will suffice to keep your application up, even if it does crash from time to time.
+
+ref: [expressjs.com](https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts)
 
 #### Ensure that you Node-process restarts after a server (Ubuntu) restart
-Use PM2
+
+The next layer of reliability is to ensure that your app restarts when the server restarts. Systems can still go down for a variety of reasons. To ensure that your app restarts if the server crashes, use the init system built into your OS. The two main init systems in use today are [systemd](https://wiki.debian.org/systemd) and [Upstart](http://upstart.ubuntu.com/).
+
+There are two ways to use init systems with your Express app:
+
+Run your app in a process manager, and install the process manager as a service with the init system. The process manager will restart your app when the app crashes, and the init system will restart the process manager when the OS restarts. This is the recommended approach.
+Run your app (and Node) directly with the init system. This is somewhat simpler, but you don’t get the additional advantages of using a process manager.
+
+ref: [expressjs.com](https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts)
 
 #### Ensure that you can take advantage of a multi-core system
 A single instance of Node.js runs in a single thread. To take advantage of multi-core systems, the user will sometimes want to launch a cluster of Node.js processes to handle the load.
@@ -459,6 +508,8 @@ if (cluster.isMaster) {
     console.log(`Worker ${process.pid} started`);
 }
 ```
+
+ref: [nodejs.org](https://nodejs.org/api/cluster.html)
 
 #### Ensure that you can run “many” node-applications on a single droplet on the same port (80)
 Can be done by implementing a reverse proxy i.e. nginx
@@ -795,14 +846,24 @@ function async myFunc() {
 Async/await makes asynchronous code look and behave like synchronous code
 
 ```js
-async function SerialFlow(){
-    let result1 = await doJob(1,1);
-    let result2 = await doJob(2,2);
-    let result3 = await doJob(3,3);
-    let finalResult = result1+result2+result3;
-    console.log(finalResult);
-    return finalResult; 
+async function SerialFlow() {
+	let result1 = await doJob(1, 1)
+	let result2 = await doJob(2, 2)
+	let result3 = await doJob(3, 3)
+	let finalResult = result1 + result2 + result3
+	console.log(finalResult)
+	return finalResult
 }
+
+function doJob(n, e) {
+	return n + e
+}
+
+SerialFlow()
+```
+output
+```
+12
 ```
 
 ## ES6,7,8... and TypeScript
@@ -961,10 +1022,10 @@ class square extends Shape {
 JavaScript Object inheritance is Prototype based. ES6 classes are just syntactic sugar to make it look similar to OOP languages like Java. Behind the scene, no Class based inheritance but Prototype based inheritance.
 
 ### Provide examples with es-next, running in a browser, using Babel and Webpack
-Examples can be found [here](https://github.com/sem4-fullstack-javascript/Hand-in-Period-1/tree/master/WebpackExercises)
+Examples can be found [here](https://github.com/sem4-fullstackjs/Period-1/tree/master/WebpackExercises)
 
 ### Provide a number of examples to demonstrate the benefits of using TypeScript, including, types, interfaces, classes and generics
-Examples can be found [here](https://github.com/sem4-fullstack-javascript/Hand-in-Period-1/tree/master/TypeScriptExercises)
+Examples can be found [here](https://github.com/sem4-fullstackjs/Period-1/tree/master/TypeScriptExercises)
 
 ### Explain the ECMAScript Proposal Process for how new features are added to the language (the TC39 Process)
 Each proposal for an ECMAScript feature goes through the following maturity stages, starting with stage 0. The progression from one stage to the next one must be approved by TC39.
@@ -1171,6 +1232,8 @@ module.exports = {
 }
 ```
 
+Also check out my [MongoCrudExercises](https://github.com/sem4-fullstackjs/Period-2/blob/master/MongoCrudExercises/crud.js)
+
 ### Explain the benefits of using Mongoose, and demonstrate, using your own code, an example involving all CRUD operations
 Since MongoDB on its own is schemaless, which can cause some troubles, using a layer on top like mongoose makes it possible also to reference documents in other collections inside a document.
 
@@ -1228,62 +1291,8 @@ let UserSchema = new Schema({
 a user have a one-to-few job. therefore we have embedded the job data into user
 
 ### Explain, using a relevant example, a full JavaScript backend including relevant test cases to test the REST-API (not on the production database)
-the testing of the database could look like this:
-```js
-const assert = require("assert")
-const blogFacade = require("../facade/blogFacade")
-const LocationBlog = require("../models/LocationBlog")
-const User = require("../models/User")
 
-const connect = require("../dbConnect")
-connect(require("../settings").TEST_DB_URI);
-
-describe("LocationBlogFacade", function () {
-    var testUser1
-    var testBlog1
-
-    beforeEach(async function () {
-        testUser1 = new User(
-            {
-                firstName: "Jenne",
-                lastName: "Teste",
-                userName: "jenn",
-                password: "1234",
-                email: "jenn@",
-            })
-        await testUser1.save()
-
-        testBlog1 = new LocationBlog({
-            info: "Very Nice blog i wrote here",
-            pos: { longitude: 22, latitude: 23 },
-            author: testUser1
-        })
-        await testBlog1.save()
-    })
-
-    afterEach(async function () {
-        await User.deleteMany({})
-        await LocationBlog.deleteMany({})
-    })
-
-    it("should should add the locationblog", async function () {
-        const blog = await blogFacade.addLocationBlog("Nice blog i wrote here", { longitude: 24, latitude: 23 }, testUser1)
-        assert.equal(blog.author, testUser1)
-    })
-
-
-    it("should add the user to the liked list", async function () {
-        const blog = await blogFacade.likeLocationBlog(testBlog1, testUser1)
-        assert.ok(blog.likedBy[0].equals(testUser1))
-    })
-
-    it("should not be able to have the same user to like twice", async function () {
-        const blog = await blogFacade.likeLocationBlog(testBlog1, testUser1)
-        await blogFacade.likeLocationBlog(blog, testUser1)
-        assert.equal(blog.likedByCount, 1) 
-    })
-})
-```
+Check out my [Mini-Project](https://github.com/sem4-fullstackjs/Mini-Project/tree/master/Backend/test)
 
 ## Geo-data, GeoJSON, Geospatial Queries with MongoDB, React Native/Expo’s Location and MapView Components
 
