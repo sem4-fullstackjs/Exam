@@ -1456,11 +1456,7 @@ GraphQL doesn’t care about the database or the format that is used to store th
 
 **GraphQL Server Integrating Existing Systems**
 
-Another major use case for GraphQL is the integration of multiple existing systems behind a single, coherent GraphQL API. 
-
-In that context, GraphQL can be used to unify these existing systems and hide their complexity behind a nice GraphQL API. 
-
-This way, new client applications can be developed that simply talk to the GraphQL server to fetch the data they need. 
+Another major use case for GraphQL is the integration of multiple existing systems behind a single, coherent GraphQL API. In that context, GraphQL can be used to unify these existing systems and hide their complexity behind a nice GraphQL API. This way, new client applications can be developed that simply talk to the GraphQL server to fetch the data they need. 
 
 ![intexisys](./img/intexisys.png)
 
@@ -1550,7 +1546,7 @@ How do we gain all this flexibility with GraphQL?
 
 As we have seen, the payload of a GraphQL query (or mutation) consists of a set of fields. In the GraphQL server implementation, each of these fields actually corresponds to exactly one function that’s called a resolver. The sole purpose of a resolver function is to fetch the data for its field.
 
-![resolver](resolver.png)
+![resolver](./img/resolver.png)
 
 For exampels i would check out both my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) and the [LyndaTutorial](https://github.com/sem4-fullstackjs/Period-4/tree/master/LyndaTutorial/server) - The resolvers are done with different approaches. 
 
