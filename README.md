@@ -850,21 +850,55 @@ async function SerialFlow() {
 	let result1 = await doJob(1, 1)
 	let result2 = await doJob(2, 2)
 	let result3 = await doJob(3, 3)
+
 	let finalResult = result1 + result2 + result3
 	console.log(finalResult)
 	return finalResult
 }
 
-function doJob(n, e) {
-	return n + e
+async function ParallelFlow() {
+	let result1 = doJob(1, 1)
+	let result2 = doJob(2, 2)
+	let result3 = doJob(3, 3)
+
+	let finalResult = (await result1) + (await result2) + (await result3)
+
+	console.log(finalResult)
+	return finalResult
 }
 
-SerialFlow()
+function doJob(x, sec) {
+	return new Promise(resolve => {
+		console.log('Start: ' + x)
+		setTimeout(() => {
+			console.log('End: ' + x)
+			resolve(x)
+		}, sec * 1000)
+	})
+}
 ```
 output
 ```
-12
+Serial:             
+Start: 1
+End: 1
+Start: 2
+End: 2
+Start: 3
+End: 3
+6
+
+Parallel:
+Start: 1
+Start: 2
+Start: 3
+End: 1
+End: 2
+End: 3
+6
 ```
+
+ref: https://techbrij.com/javascript-async-await-parallel-sequence
 
 ## ES6,7,8... and TypeScript
 ### Explain the two strategies for improving JavaScript: ES6 (es2015) + ES7, versus Typescript. What does it require to use these technologies: In our backend with Node and in (many different) Browsers
@@ -1120,7 +1154,7 @@ describe("Calculator API", function() {
 			const res = calc.muliply(4, 3);
 			expect(res).to.be.equal(12);
 		});
-		it("9 / 3 should return 7", function() {
+		it("9 / 3 should return 3", function() {
 			const res = calc.divide(9, 3);
 			expect(res).to.be.equal(3);
 		});
@@ -1193,9 +1227,36 @@ It is very fast to read data as you often avoid have to join tables. But it can 
 Since MongoDB on its own is schemaless, which can cause some troubles, using a layer on top like mongoose makes it possible also to reference documents in other collections inside a document
 
 ### Explain about indexes in MongoDB, how to create them, and demonstrate how you have used them.
-[Indexes in MongoDB](https://docs.mongodb.com/manual/indexes/)
+
+```js
+var userSchema = new mongoose.Schema({
+  userName: String,
+  email: {type: String, unique:true},
+  created: { type: Date, default: Date.now },
+  modified: Date,
+  lastLogin: Date
+});
+```
+
+In the above example we see a schema with 5 indexes.
+
+MongoDB [indexes](https://docs.mongodb.com/manual/indexes/)
 
 ### Explain, using your own code examples, how you have used some of MongoDB's "special" indexes like TTL and 2dsphere
+
+In my [Mini-Project](https://github.com/sem4-fullstackjs/Mini-Project/blob/master/Backend/models/Position.js) i've used 2dsphere -  A 2dsphere index supports queries that calculate geometries on an earth-like sphere. 2dsphere index supports all MongoDB geospatial queries: queries for inclusion, intersection and proximity. For more information on geospatial queries, see [Geospatial Queries](https://docs.mongodb.com/manual/geospatial-queries/).
+
+**Geospatial Query Operators**
+MongoDB provides the following geospatial query operators:
+|Name|Description|
+|-|-|
+|$geoIntersects|Selects geometries that intersect with a GeoJSON geometry. The 2dsphere index supports $geoIntersects. |
+|$geoWithin |Selects geometries within a bounding GeoJSON geometry. The 2dsphere and 2d indexes support $geoWithin. |
+|$near |Returns geospatial objects in proximity to a point. Requires a geospatial index. The 2dsphere and 2d indexes support $near. |
+|$nearSphere|Returns geospatial objects in proximity to a point on a sphere. Requires a geospatial index. The 2dsphere and 2d indexes support $nearSphere. |
+
+Example here [Mini-Project](https://github.com/sem4-fullstackjs/Mini-Project/blob/master/Backend/facades/loginFacade.js)
+
 MongoDB [2dsphere](https://docs.mongodb.com/manual/core/2dsphere/)
 
 ### Demonstrate, using a REST-API you have designed, how to perform all CRUD operations on a MongoDB
@@ -1238,17 +1299,17 @@ Also check out my [MongoCrudExercises](https://github.com/sem4-fullstackjs/Perio
 Since MongoDB on its own is schemaless, which can cause some troubles, using a layer on top like mongoose makes it possible also to reference documents in other collections inside a document.
 
 ### Explain the “6 Rules of Thumb: Your Guide Through the Rainbow” as to how and when you would use normalization vs. denormalization.
-rule 1 Favor embedding unless there is a compelling reason not to.
+Rule 1 Favor embedding unless there is a compelling reason not to.
 
-rule 2 Needing to access an object on its own is a compelling reason not to embed it.
+Rule 2 Needing to access an object on its own is a compelling reason not to embed it.
 
-rule 3 Arrays should not grow without bound. If there are more than a couple of hundred documents on the “many” side, don’t embed them; if there are more than a few thousand documents on the “many” side, don’t use an array of ObjectID references. High-cardinality arrays are a compelling reason not to embed.
+Rule 3 Arrays should not grow without bound. If there are more than a couple of hundred documents on the “many” side, don’t embed them; if there are more than a few thousand documents on the “many” side, don’t use an array of ObjectID references. High-cardinality arrays are a compelling reason not to embed.
 
-rule 4 Don’t be afraid of application-level joins: if you index correctly and use the projection specifier (as shown in part 2) then application-level joins are barely more expensive than server-side joins in a relational database.
+Rule 4 Don’t be afraid of application-level joins: if you index correctly and use the projection specifier (as shown in part 2) then application-level joins are barely more expensive than server-side joins in a relational database.
 
-rule 5 Consider the write/read ratio when denormalizing. A field that will mostly be read and only seldom updated is a good candidate for denormalization: if you denormalize a field that is updated frequently then the extra work of finding and updating all the instances is likely to overwhelm the savings that you get from denormalizing.
+Rule 5 Consider the write/read ratio when denormalizing. A field that will mostly be read and only seldom updated is a good candidate for denormalization: if you denormalize a field that is updated frequently then the extra work of finding and updating all the instances is likely to overwhelm the savings that you get from denormalizing.
 
-rule 6 As always with MongoDB, how you model your data depends – entirely – on your particular application’s data access patterns. You want to structure your data to match the ways that your application queries and updates it.
+Rule 6 As always with MongoDB, how you model your data depends – entirely – on your particular application’s data access patterns. You want to structure your data to match the ways that your application queries and updates it.
 
 reference [6 Rules of Thumb](https://www.mongodb.com/blog/post/6-rules-of-thumb-for-mongodb-schema-design-part-3)
 
@@ -1288,7 +1349,7 @@ let UserSchema = new Schema({
     lastUpdated: Date
 });
 ```
-a user have a one-to-few job. therefore we have embedded the job data into user
+a user have a [one-to-few](https://stackoverflow.com/questions/31438853/mongodb-where-is-the-limit-between-few-and-many) job. therefore we have embedded the job data into user
 
 ### Explain, using a relevant example, a full JavaScript backend including relevant test cases to test the REST-API (not on the production database)
 
