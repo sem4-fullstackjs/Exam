@@ -15,6 +15,8 @@
 ### Explain the purpose of “use strict” and Linters, exemplified with ESLint
 
 **'use strict'**
+
+It is not a statement, but a literal expression, ignored by earlier versions of JavaScript. The purpose of "use strict" is to indicate that the code should be executed in "strict mode". With strict mode, you can not, for example, use undeclared variables
 ```js
 x = 3.14;       // This will not cause an error. 
 myFunction();
