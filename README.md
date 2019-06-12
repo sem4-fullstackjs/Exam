@@ -618,97 +618,7 @@ Rendering the site
 
 ### Explain, using relevant examples, your strategy for implementing a REST-API with Node/Express and show how you can "test" all the four CRUD operations programmatically using, for example, the Request package.
 
-# CHANGE THIS
-
-Implementing a REST-API with Express
-```js
-var express = require("express");
-var router = express.Router();
-var jokes = require("../model/jokes");
-
-/* GET home page. */
-router.get("/", function(req, res, next) {
-    res.render("index", { title: "Express", userName: req.session.userName });
-});
-
-router.get("/login", function(req, res, next) {
-    res.render("login", { title: "Login" });
-});
-
-router.post("/login", function(req, res, next) {
-    res.render("index", { title: "Express" });
-});
-
-router.get("/joke", function(req, res, next) {
-    let counter = req.session.jokeCounter;
-    counter++;
-    req.session.jokeCounter = counter;
-    res.render("randomJoke", { title: "Joke", joke: jokes.getRandomJoke() });
-});
-
-router.get("/jokes", function(req, res, next) {
-    let counter = req.session.jokesCounter;
-    counter++;
-    req.session.jokesCounter = counter;
-    res.render("allJokes", { title: "Jokes", jokes: jokes.getAllJokes() });
-});
-
-router.get("/addjoke", function(req, res, next) {
-    res.render("addJoke", { title: "Add Joke" });
-});
-
-router.post("/storejoke", function(req, res, next) {
-    let counter = req.session.storeJokeCounter;
-    counter++;
-    req.session.storeJokeCounter = counter;
-
-    const joke = req.body.joke;
-
-    jokes.addJoke(joke);
-
-    res.render("addJoke", { title: "Add Joke" });
-});
-
-module.exports = router;
-```
-Testing the REST-API
-```js
-const expect = require("chai").expect;
-const http = require('http');
-const app = require('../app');
-const fetch = require("node-fetch");
-const TEST_PORT = 3344;
-const URL = `http://localhost:${TEST_PORT}/api`;
-const jokes = require("../model/jokes");
-let server;
-describe("Verify the Joke API", function() {
-    before(function(done){
-        server = http.createServer(app);
-        server.listen(TEST_PORT,()=>{
-            console.log("Server Started")
-            done()
-        })
-    })
-    after(function(done){
-        server.close();
-        done();
-    })
-    beforeEach(function(){
-        jokes.setJokes(["aaa","bbb","ccc"])
-    })
-    it("Should add the joke 'ddd",async function(){
-        var init = {
-            method: "POST",
-            headers : {"content-type": "application/json"},
-            body : JSON.stringify({joke: "ddd"})
-        }
-        await fetch(URL+"/addjoke",init).then(r => r.json());
-        //Verify result
-        expect(jokes.getAllJokes()).lengthOf(4);
-        expect(jokes.getAllJokes()).to.include("ddd")
-    })
-}
-```
+Checkout this [MongoCRUD](https://github.com/sem4-fullstackjs/Period-2/blob/master/MongoCrudExercises/crud.js) exercise.
 
 ### Explain, preferably using an example, how you have deployed your node/Express applications, and which of the Express Production best practices you have followed.
 [Deploying Express Application](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04)
@@ -965,46 +875,8 @@ output
 ```
 
 #### `this`
-# WATCH tHIS IDEO https://www.youtube.com/watch?v=NV9sHLX-jZU
-`this`is a unique keyword whose value changes depending on how it is called. When it is called outside a function, `this` refers to the `Window` object in the browser.
-```js
-console.log(this) // Window
-```
-When `this` is called in a function, `this` is set to the global object.
-```js
-function hello () {
-    console.log(this)
-}
-hello() // Window
-```
-When `this` is called in an object method, `this` would be the object itself.
-```js
-let o = {
-    sayThis: function() {
-        console.log(this)
-    }
-}
 
-o.sayThis() // o
-```
-When the function is called as a constructor, `this` refers to the newly constructed object.
-```js
-function Person (age) {
-    this.age = age
-}
-let greg = new Person(22)
-let thomas = new Person(24)
-console.log(greg) // this.age = 22
-console.log(thomas) // this.age = 24
-```
-When used in an event listener, `this` is set to the element that fired the event.
-```js
-let button = document.querySelector('button')
-button.addEventListener('click', function() {
-    console.log(this) // button
-})
-```
-In arrow functions, `this` never gets bound to a new value, no matter how the function is called. `this` will always be the same `this` value as its surrounding code.
+Checkout the exampls at ./Node.js Basics/this/this_exercise.js
 
 #### rest parameters
 
