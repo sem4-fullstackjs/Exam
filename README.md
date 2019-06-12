@@ -236,6 +236,8 @@ Although events look quite similar to callbacks, the difference lies in the fact
 
 Watch this [video](https://www.youtube.com/watch?v=8aGhZQkoFbQ) about the Event Loop
 
+A demonstration can be found under ./Node.js Basics/es6/event_loop.js
+
 ### Explain using sufficient code examples the following features in JavaScript. 
 #### Provide examples of user-defined reusable modules implemented in Node.js
 ```js
@@ -615,6 +617,9 @@ Rendering the site
 ```
 
 ### Explain, using relevant examples, your strategy for implementing a REST-API with Node/Express and show how you can "test" all the four CRUD operations programmatically using, for example, the Request package.
+
+# CHANGE THIS
+
 Implementing a REST-API with Express
 ```js
 var express = require("express");
@@ -721,6 +726,7 @@ ES6 modules allow the JavaScript developer to break their code up into manageabl
 Webpack is a module bundler. Its primary purpose is to process your application by tracking down all its dependencies, then package them all up into one or more bundles that can be run in the browser.
 
 ## Callbacks, Promises and async/await
+
 ### Explain about promises in ES-6 including, the problems they solve, a quick explanation of the Promise API and:
 The `Promise` object represents the eventual completion (or failure) of an asynchronous operation, and its resulting value.  
 A `Promise` is a proxy for a value not necessarily known when the promise is created. It allows you to associate handlers with an asynchronous action's eventual success value or failure reason. This lets asynchronous methods return values like synchronous methods: instead of immediately returning the final value, the asynchronous method returns a promise to supply the value at some point in the future.  
@@ -774,46 +780,36 @@ Promise.all(arrayOfPromises)
 })
 ```
 
+Another example [here](https://gist.github.com/Gonron/7cc494d92ca0c801f2ec5129cc9fcbc7)
+
 #### Example(s) that demonstrate how to implement our own promise-solutions.
+
 ```js
-function get(url) {
-  return new Promise(function(resolve, reject) {
-    var req = new XMLHttpRequest();
-    req.open('GET', url);
-    req.onload = function() {
-      if (req.status == 200) { 
-          resolve(req.response); /* PROMISE RESOLVED */
-      } else { 
-          reject(Error(req.statusText)); /* PROMISE REJECTED */
-      }
-    };
-    req.onerror = function() { reject(Error("Network Error")); };
-    req.send();
-  });
-}
+// old
+return new Promoise((resolve, object) => {
+	Friends.findOneAndUpdate({ _id: input.id }, input, { new: true }, (err, friend) => {
+		if (err) reject(err)
+		else resolve(newFriend)
+	})
+})
+
+// new
+return await Friends.findOneAndUpdate({ _id: input.id }, input, { new: true })
 ```
 
 #### Example(s) that demonstrate error handling with promises
-Since both the success and error functions are optional, we can split them into two `.then()`s for better readability.
 
 ```js
-get(url)
-.then(function(response) {
-    /* successFunction */
-}, undefined)
-.then(undefined, function(err) {
-    /* errorFunction */
+const promise = new Promise((resolve, reject) => {
+	resolve('good')
+	// reject('bad')
 })
-```
-To make things even more readable, we make use of the `.catch()` method, which is a shorthand for a `.then(undefined, errorFunction)`.
-```js
-get(url)
-.then(function(response) {
-    /* successFunction */
-})
-.catch(function(err) {
-    /* errorFunction */
-})
+	.then(value => {
+		console.log('value', value)
+	})
+	.catch(err => {
+		console.log('err', err)
+	})
 ```
 
 ### Explain about JavaScripts async/await
@@ -821,27 +817,64 @@ get(url)
 
 Async Await is syntactic sugar that changes the .then notation to more readable syntax. Instead of making a . connection between the promises the keyword awaitcan be used instead.
 
-### Provide examples to demonstrate:
-#### Why this often is the preferred way of handling promises
 ```js
-function async myFunc() {
-    const res = await fetch(...)
-    const json = res.json()
-    // ...
+const fs = require('fs')
+const util = require('util')
+const read = util.promisify(fs.readFile)
+
+let run = async () => {
+	// promise version
+	Promise.all([read('../data/1.txt'), read('../data/2.txt'), read('../data/3.txt')]).then(
+		data => {
+			const [data1, data2, data3] = data
+
+			console.log(data1.toString())
+			console.log(data2.toString())
+			console.log(data3.toString())
+		}
+	)
+
+	// async/await
+	const [data1, data2, data3] = await Promise.all([
+		read('../data/1.txt'),
+		read('../data/2.txt'),
+		read('../data/3.txt')
+	])
+	console.log(data1.toString())
+	console.log(data2.toString())
+	console.log(data3.toString())
 }
+
+run()
 ```
 
 #### Error handling with async/await
+
 ```js
-function async myFunc() {
-    try {
-        const res = await fetch(...)
-        const json = res.json()
-        // ...
-    } catch (err) {
-        new Error(err)
-    } 
+const fs = require('fs')
+const util = require('util')
+const read = util.promisify(fs.readFile)
+
+let run = async () => {
+	// promise version
+	read('../data/1.txt')
+		.then(data => {
+			console.log('promise:', data.toString())
+		})
+		.catch(err => {
+			// handle error
+		})
+
+	// aync/await version
+	try {
+		const data = await read('../data/1.txt')
+		console.log('async/await:', data.toString())
+	} catch (err) {
+		// handle error
+	}
 }
+
+run()
 ```
 
 #### Serial or parallel execution with async/await.
@@ -900,7 +933,9 @@ End: 3
 6
 ```
 
+[alternative](https://gist.github.com/Gonron/7cc494d92ca0c801f2ec5129cc9fcbc7)
 ref: https://techbrij.com/javascript-async-await-parallel-sequence
+
 
 ## ES6,7,8... and TypeScript
 ### Explain the two strategies for improving JavaScript: ES6 (es2015) + ES7, versus Typescript. What does it require to use these technologies: In our backend with Node and in (many different) Browsers
@@ -915,24 +950,22 @@ TypeScript is a strict syntactical superset of JavaScript, and adds optional sta
 With ES6 it is now possible to declare a variable that behaves more like we expect them to behave. While a `var` declaration is hoisted to the top of its scope a `let` or a `const` declaration is not hoisted and behaves like we know variable declarations from Java. The difference between a `let` and a `const` is that the `let` can be assigned a new value and the `const` can't.
 
 #### arrow functions
+
 ```js
-// Defining a function
-function addNumbers(a, b) {
-    return a + b;
-}
-// Using anonymous function
-var addNumbers = function(a, b) {
-    return a + b;
-}
-// using Arrow Functions with return statement
-var addNumbers = (a, b) => {
-    return a + b;
-}
-// Using Arrow Functions without return statements and without curly braces
-var addNumbers = (a, b) => a + b; // implicit return statement
+let nums = [1, 2, 3, 4]
+nums.forEach(num => {
+	console.log(num * 2)
+})
+```
+
+output
+
+```
+2 4 6 8
 ```
 
 #### `this`
+# WATCH tHIS IDEO https://www.youtube.com/watch?v=NV9sHLX-jZU
 `this`is a unique keyword whose value changes depending on how it is called. When it is called outside a function, `this` refers to the `Window` object in the browser.
 ```js
 console.log(this) // Window
@@ -974,67 +1007,116 @@ button.addEventListener('click', function() {
 In arrow functions, `this` never gets bound to a new value, no matter how the function is called. `this` will always be the same `this` value as its surrounding code.
 
 #### rest parameters
+
 ```js
-function f (x, y, ...rest) {
-    return (x + y) * rest.length
-}
-f(1, 2, "hello", true, 7) === 9
+let a = [1, 2, 3]
+let b = [...a, 4, 5]
+console.log(b)
+```
+
+output
+
+```
+[1, 2, 3, 4, 5]
 ```
 
 #### destructuring
-Array Matching
+
+**array destructoring**
+
 ```js
-var list = [ 1, 2, 3 ]
-var [ a, , b ] = list // a === 1, b === 3
-[ b, a ] = [ a, b ] // b === 1, a === 3
-```
-Object Matching, Shorthand Notation
-```js
-var { op, lhs, rhs } = getASTNode()
-```
-Object and Array Matching, Default values
-```js
-var obj = { a: 1 }
-var list = [ 1 ]
-var { a, b = 2 } = obj // a === 1, b === 2
-var [ x, y = 2 ] = list // x === 1, y === 2
+var nums = [1, 2, 3]
+var [one, two, three] = nums
+console.log(one, two, three)
+
+// swap-a-roo
+var [one, two] = [two, one]
+console.log(one, two)
 ```
 
+output
+
+```
+1 2 3
+2 1
+```
+
+**object destructuring**
+
+```js
+// based on the name
+var nums = { one: 1, two: 2, three: 3 }
+var { three, two, one } = nums
+
+console.log(one, two, three)
+```
+
+output
+
+```
+1 2 3
+```
+
+
 #### sets
+
+It's basicly an array that can only contain unique values
+
 ```js
 let s = new Set()
-s.add("hello").add("goodbye").add("hello")
-s.size === 2 // no duplicate entries
-s.has("hello") === true
+s.add('hello')
+	.add('goodbye')
+	.add('hello')
+console.log(s.size === 2) // no duplicate entries
+s.has('hello') === true
 for (let key of s.values()) // insertion order
-    console.log(key)
+	console.log(key)
+```
+
+output
+
+```
+true
+hello
+goodbye
 ```
 
 #### maps
+
+A map with key values pairs (keys are unique, values are not)
+
 ```js
 let m = new Map()
-let s = Symbol()
-m.set("hello", 42)
-m.set(s, 34)
-m.get(s) === 34
-m.size === 2
-for (let [ key, val ] of m.entries())
-    console.log(key + " = " + val)
+m.set('Hello', 1)
+m.set('world', 8)
+m.set('world', 84)
+m.set('Hi', 1)
+for (let [key, val] of m.entries()) console.log(key + ' = ' + val)
+```
+
+output
+
+```
+Hello = 1
+World = 84
+Hi = 1
 ```
 
 ### Explain and demonstrate how es2015 supports modules (import and export) similar to what is offered by NodeJS.
 ```js
 //  lib/math.js
-export function sum (x, y) { return x + y }
+export function sum(x, y) {
+	return x + y
+}
 export var pi = 3.141593
 
 //  someApp.js
-import * as math from "lib/math"
-console.log("2π = " + math.sum(math.pi, math.pi))
+import * as math from 'lib/math'
+console.log('2π = ' + math.sum(math.pi, math.pi))
 
 //  otherApp.js
-import { sum, pi } from "lib/math"
-console.log("2π = " + sum(pi, pi))
+import { sum, pi } from 'lib/math'
+console.log('2π = ' + sum(pi, pi))
 ```
 
 ### Provide an example of ES6 inheritance and reflect over the differences between Inheritance in Java and in ES6.
