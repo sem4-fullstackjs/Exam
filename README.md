@@ -97,19 +97,19 @@ In JavaScript, the Module pattern is used to further emulate the concept of clas
 
 ```js
 var modularpattern = (function() {
-    // your module code goes here
-    var sum = 0 ;
+	// your module code goes here
+	var sum = 0
 
-    return {
-        add:function() {
-            sum = sum + 1;
-            return sum;
-        },
-        reset:function() {
-            return sum = 0;    
-        }  
-    }   
-}());
+	return {
+		add() {
+			sum = sum + 1
+			return sum
+		},
+		reset() {
+			return (sum = 0)
+		}
+	}
+})()
 console.log(modularpattern.add())
 console.log(modularpattern.add())
 console.log(modularpattern.reset())
@@ -233,6 +233,8 @@ Node.js uses events heavily and it is also one of the reasons why Node.js is pre
 In an event-driven application, there is generally a main loop that listens for events, and then triggers a callback function when one of those events is detected.
 
 Although events look quite similar to callbacks, the difference lies in the fact that callback functions are called when an asynchronous function returns its result, whereas event handling works on the observer pattern. The functions that listen to events act as Observers. Whenever an event gets fired, its listener function starts executing.
+
+Watch this [video](https://www.youtube.com/watch?v=8aGhZQkoFbQ) about the Event Loop
 
 ### Explain using sufficient code examples the following features in JavaScript. 
 #### Provide examples of user-defined reusable modules implemented in Node.js
