@@ -13,8 +13,26 @@
 |Class Based vs Prototype Based|Java follows class based inheritance—a top down, hierarchical, class-based relationship whereby properties are defined in a class and inherited by an instance of that class.|In JavaScript, inheritance is prototypal—all objects can inherit directly from other objects. Hierarchy is accomplished in JavaScript by assigning an object as a prototype with a constructor function.|
 
 ### Explain the purpose of “use strict” and Linters, exemplified with ESLint
-The "use strict" directive was new in ECMAScript version 5. It is not a statement, but a literal expression, ignored by earlier versions of JavaScript. The purpose of "use strict" is to indicate that the code should be executed in "strict mode". With strict mode, you can not, for example, use undeclared variables.
 
+**'use strict'**
+```js
+x = 3.14;       // This will not cause an error. 
+myFunction();
+
+function myFunction() {
+  "use strict";
+  y = 3.14;     // This will cause an error
+}
+```
+
+**linters**
+JavaScript linters are tools that you can use to help you debug your code.
+
+They scan your scripts for common issues and errors, and give you back a report with line numbers that you can use to fix things.
+
+In addition to actual bugs and errors, they also check for subjective, stylistic preferences as well. Did you include a space between the function name and parentheses? Did you use single or double quotes around strings? Things like that.
+
+**Conclusion**
 "Use strict" and linters are tools to protect us form ourselves. They warn us when our code contains a syntax error, and tells us if the variable we defined or assigned a value isn't being used. This improves the quality of our code, and may save time we would have use on debuging.
 
 ### Explain using sufficient code examples the following features in JavaScript. 
@@ -259,6 +277,8 @@ module.exports.makeCounter = function(){
     }
 }
 ```
+
+example from my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/blob/master/graphql-playlist/client/src/components/BookList.js)
 
 ### Why would you consider a Scripting Language as JavaScript as your Backend Platform?
 Using Node.js as your server technology gives your team a great boost that comes from using the same language on both the front end and the back end. This, means that your team is more efficient and cross-functional, which, in turn, leads to lower development costs. In addition to that, it’s worth mentioning that JavaScript is the most popular programming language, so your application’s codebase will be easier to understand for more engineers. You can also reuse and share the code between the frontend and the backend parts of your application, which speeds up the development process. On top of that, the Node.js community is constantly growing – the number of StackOverflow questions is steadily increasing, so the knowledge base for the technology is widely available. The fact that the whole Node.js technology stack is open-source and free is also great news. Finally, Node offers a great package manager, npm, and the amount of available open-source tools in npm’s registry is massive and growing fast.
@@ -1560,7 +1580,7 @@ for more types check this [LyndaTutorial](https://github.com/sem4-fullstackjs/Pe
 
 Check out my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) - Here i've made an application using Apollo and GraphQL to make myself a reading-list, where i can display all the books, get information about that book, and add more books. 
 
-In.order to run, open up two terminals and `npm start` both the client and the server.
+In order to run, open up two terminals and `npm start` both the client and the server.
 
 ### Provide a number of examples demonstrating creating, updating and deleting with Mutations. You should provide examples both running in a Sandbox/playground and examples executed in an Apollo Client.
 
@@ -1570,9 +1590,9 @@ My [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/mast
 
 How do we gain all this flexibility with GraphQL? 
 
-As we have seen, the payload of a GraphQL query (or mutation) consists of a set of fields. In the GraphQL server implementation, each of these fields actually corresponds to exactly one function that’s called a resolver. The sole purpose of a resolver function is to fetch the data for its field.
+As we have seen, the payload of a GraphQL query (or mutation) consists of a set of fields. In the GraphQL server implementation, each of these fields actually corresponds to exactly one function that’s called a resolver. 
 
-![resolver](./img/resolver.png)
+_The sole purpose of a resolver function is to fetch the data for its field._
 
 For exampels i would check out both my [reading-list-project](https://github.com/sem4-fullstackjs/Period-4/tree/master/graphql-playlist) and the [LyndaTutorial](https://github.com/sem4-fullstackjs/Period-4/tree/master/LyndaTutorial/server) - The resolvers are done with different approaches. 
 
