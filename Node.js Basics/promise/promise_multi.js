@@ -15,10 +15,14 @@ const util = require('util')
 // new
 var read = util.promisify(fs.readFile)
 
-Promise.all([read('../data/1.txt'), read('../data/2.txt'), read('../data/3.txt')]).then(data => {
-	const [data1, data2, data3] = data
+Promise.all([read('../data/1.txt'), read('../data/2.txt'), read('../data/3.txt')])
+	.then(data => {
+		const [data1, data2, data3] = data
 
-	console.log(data1.toString())
-	console.log(data2.toString())
-	console.log(data3.toString())
-})
+		console.log(data1.toString())
+		console.log(data2.toString())
+		console.log(data3.toString())
+	})
+	.catch(err => {
+		console.log(err)
+	})

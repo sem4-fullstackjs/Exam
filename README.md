@@ -673,6 +673,21 @@ If the promise has already been fulfilled or rejected when a corresponding handl
 
 As the `Promise.prototype.then()` and `Promise.prototype.catch()` methods return promises, they can be chained.
 
+```js
+const cleanRoom = new Promise((res, rej) => {
+	// res('Room is clean')
+	rej('Room is NOT clean')
+})
+	.then(value => {
+		console.log(value)
+	})
+	.catch(err => {
+		console.log(err)
+	})
+
+console.log('Have i cleaned my room?')
+```
+
 #### Example(s) that demonstrate how to avoid the callback hell  (“Pyramid of Doom")
 **Pyramid of Doom**
 ```js
@@ -882,6 +897,26 @@ TypeScript is a strict syntactical superset of JavaScript, and adds optional sta
 With ES6 it is now possible to declare a variable that behaves more like we expect them to behave. While a `var` declaration is hoisted to the top of its scope a `let` or a `const` declaration is not hoisted and behaves like we know variable declarations from Java. The difference between a `let` and a `const` is that the `let` can be assigned a new value and the `const` can't.
 
 #### arrow functions
+
+Unlike functions, arrows share the same `this` as their surrounding code.
+
+```js
+var bob = {
+	_name: 'Bob',
+	_friends: ['Michael', 'Kurt', 'Hanne'],
+	printFriends() {
+		this._friends.forEach(f => console.log(this._name + ' knows ' + f))
+	}
+}
+
+bob.printFriends()
+```
+output
+```
+Bob knows Michael
+Bob knows Kurt
+Bob knows Hanne
+```
 
 ```js
 let nums = [1, 2, 3, 4]
@@ -1198,6 +1233,8 @@ Many NoSQL stores compromise consistency in favor of availability, partition tol
 
 Instead, most NoSQL databases offer a concept of "eventual consistency" in which database changes are propagated to all nodes "eventually" (typically within milliseconds) so queries for data might not return updated data immediately or might result in reading data that is not accurate, a problem known as stale reads. Additionally, some NoSQL systems may exhibit lost writes and other forms of data loss. Some NoSQL systems provide concepts such as write-ahead logging to avoid data loss. For distributed transaction processing across multiple databases, data consistency is an even bigger challenge that is difficult for both NoSQL and relational databases. Relational databases "do not allow referential integrity constraints to span databases". Few systems maintain both ACID transactions and X/Open XA standards for distributed transaction processing.
 
+ref: https://www.thegeekstuff.com/2014/01/sql-vs-nosql-db
+
 ### Explain Pros & Cons in using a NoSQL database like MongoDB as your data store, compared to a traditional Relational SQL Database like MySQL.
 It is very fast to read data as you often avoid have to join tables. But it can also be slower to update because of the database is denormalized.
 
@@ -1238,6 +1275,33 @@ Example here [Mini-Project](https://github.com/sem4-fullstackjs/Mini-Project/blo
 MongoDB [2dsphere](https://docs.mongodb.com/manual/core/2dsphere/)
 
 ### Demonstrate, using a REST-API you have designed, how to perform all CRUD operations on a MongoDB
+
+Checkout my [MongoCrudExercises](https://github.com/sem4-fullstackjs/Period-2/blob/master/MongoCrudExercises/crud.js)
+
+### Explain the benefits of using Mongoose, and demonstrate, using your own code, an example involving all CRUD operations
+Since MongoDB on its own is schemaless, which can cause some troubles, using a layer on top like mongoose makes it possible also to reference documents in other collections inside a document.
+
+### Explain the “6 Rules of Thumb: Your Guide Through the Rainbow” as to how and when you would use normalization vs. denormalization.
+Rule 1 Favor embedding unless there is a compelling reason not to.
+
+Rule 2 Needing to access an object on its own is a compelling reason not to embed it.
+
+Rule 3 Arrays should not grow without bound. If there are more than a couple of hundred documents on the “many” side, don’t embed them; if there are more than a few thousand documents on the “many” side, don’t use an array of ObjectID references. High-cardinality arrays are a compelling reason not to embed.
+
+Rule 4 Don’t be afraid of application-level joins: if you index correctly and use the projection specifier (as shown in part 2) then application-level joins are barely more expensive than server-side joins in a relational database.
+
+Rule 5 Consider the write/read ratio when denormalizing. A field that will mostly be read and only seldom updated is a good candidate for denormalization: if you denormalize a field that is updated frequently then the extra work of finding and updating all the instances is likely to overwhelm the savings that you get from denormalizing.
+
+Rule 6 As always with MongoDB, how you model your data depends – entirely – on your particular application’s data access patterns. You want to structure your data to match the ways that your application queries and updates it.
+
+Purpose of **Normalization** is to reduce the data redundancy and inconsistency.
+
+Purpose of **Denormalization** is to achieve the faster execution of the queries through introducing redundancy.
+
+ref: [6 Rules of Thumb](https://www.mongodb.com/blog/post/6-rules-of-thumb-for-mongodb-schema-design-part-3) and [normalization vs denormalization](https://techdifferences.com/difference-between-normalization-and-denormalization.html)
+
+### Demonstrate, using your own code-samples, decisions you have made regarding → normalization vs denormalization
+
 ```js
 const User = require("../models/user")
 
@@ -1271,27 +1335,6 @@ module.exports = {
 }
 ```
 
-Also check out my [MongoCrudExercises](https://github.com/sem4-fullstackjs/Period-2/blob/master/MongoCrudExercises/crud.js)
-
-### Explain the benefits of using Mongoose, and demonstrate, using your own code, an example involving all CRUD operations
-Since MongoDB on its own is schemaless, which can cause some troubles, using a layer on top like mongoose makes it possible also to reference documents in other collections inside a document.
-
-### Explain the “6 Rules of Thumb: Your Guide Through the Rainbow” as to how and when you would use normalization vs. denormalization.
-Rule 1 Favor embedding unless there is a compelling reason not to.
-
-Rule 2 Needing to access an object on its own is a compelling reason not to embed it.
-
-Rule 3 Arrays should not grow without bound. If there are more than a couple of hundred documents on the “many” side, don’t embed them; if there are more than a few thousand documents on the “many” side, don’t use an array of ObjectID references. High-cardinality arrays are a compelling reason not to embed.
-
-Rule 4 Don’t be afraid of application-level joins: if you index correctly and use the projection specifier (as shown in part 2) then application-level joins are barely more expensive than server-side joins in a relational database.
-
-Rule 5 Consider the write/read ratio when denormalizing. A field that will mostly be read and only seldom updated is a good candidate for denormalization: if you denormalize a field that is updated frequently then the extra work of finding and updating all the instances is likely to overwhelm the savings that you get from denormalizing.
-
-Rule 6 As always with MongoDB, how you model your data depends – entirely – on your particular application’s data access patterns. You want to structure your data to match the ways that your application queries and updates it.
-
-reference [6 Rules of Thumb](https://www.mongodb.com/blog/post/6-rules-of-thumb-for-mongodb-schema-design-part-3)
-
-### Demonstrate, using your own code-samples, decisions you have made regarding → normalization vs denormalization
 ```js
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;

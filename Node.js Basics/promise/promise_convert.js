@@ -18,7 +18,7 @@ new Promise((resolve, reject) => {
 	})
 })
 	.then(data => {
-		console.log('newPromise', data.toString())
+		console.log('promise', data.toString())
 	})
 	.catch(err => {
 		console.log(err)
@@ -27,6 +27,12 @@ new Promise((resolve, reject) => {
 // new with util
 
 var read = util.promisify(fs.readFile)
-read('../data/1.txt').then(data => {
-	console.log('util-module:', data.toString())
-})
+read('../data/1.txt')
+	.then(data => {
+		console.log('util-module:', data.toString())
+	})
+	.catch(err => {
+		console.log(err)
+	})
+
+console.log('Prove of how awesome promises is!')
